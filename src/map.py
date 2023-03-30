@@ -9,6 +9,7 @@ COLOR_CAMINO = (64, 81, 114, 1)
 COLOR_PISO = (40, 48, 63, 1)
 COLOR_FONDO = (9, 10, 12, 1)
 
+
 with open('data.txt') as data:
     temp = data.read().splitlines()
     net = []
@@ -74,7 +75,8 @@ with open('data.txt') as data:
                     color = COLOR_FINAL
                 rect = pygame.Rect(column * HEIGHT + 1, row * WIDTH + 1, WIDTH - 1, HEIGHT - 1)
                 pygame.draw.rect(screen, color, rect)
-
+        NET_NODES_IMG = "Result" + temp[0] + ".png"
+        pygame.image.save(screen, NET_NODES_IMG)
         # Limit to 60 frames per second
         clock.tick(60)
 
