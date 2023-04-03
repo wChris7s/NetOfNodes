@@ -68,12 +68,14 @@ public:
              x(0), y(0) {};
 
     // Setters & Getters
-    void setParent(Node *p){
+    void setParent(Node *p) {
         parent = p;
     }
-    Node* getParent(){
+
+    Node *getParent() {
         return parent;
     }
+
     void setX(int value) {
         x = value;
     }
@@ -362,106 +364,151 @@ public:
     bool DFS() {
         std::stack<Node *> nodesToVisit;
         std::unordered_set<Node *> visitedNodes;
+
+        // Inicializar la pila con el nodo de inicio
         nodesToVisit.push(initNode);
+        visitedNodes.insert(initNode);
+
+        // Crear un mapa para guardar el camino realizado
+        std::unordered_map<Node *, Node *> parent_map;
+        parent_map[initNode] = nullptr;
 
         while (!nodesToVisit.empty()) {
             Node *currentNode = nodesToVisit.top();
             nodesToVisit.pop();
 
-            /* Si se encuentra el nodo, añade las coordenadas al vector. */
+            // Verificar si es el nodo objetivo
             if (currentNode == endNode) {
-                dfsPath.emplace_back(currentNode->getX(), currentNode->getY());
+                // Construir el camino a partir del mapa de padres
+                Node *node = endNode;
+                while (node != nullptr) {
+                    dfsPath.emplace_back(node->getX(), node->getY());
+                    node = parent_map[node];
+                }
+                reverse(dfsPath.begin(), dfsPath.end());
+
                 return true;
             }
 
-            /* Si el nodo fue visitado continua con el siguiente. */
-            if (visitedNodes.count(currentNode) > 0) {
-                continue;
-            }
-            /* Marca el nodo como visitado. */
-            visitedNodes.insert(currentNode);
-
-            /* Agrega los nodos no visitados a la pila. */
-            /* .count: número de ocurrencias de un elemento que existen en el set. */
+            /* Agregar los nodos que no han sido visitados. */
             if (currentNode->getUp() != nullptr && visitedNodes.count(currentNode->getUp()) == 0) {
                 nodesToVisit.push(currentNode->getUp());
+                visitedNodes.insert(currentNode->getUp());
+                parent_map[currentNode->getUp()] = currentNode;
             }
             if (currentNode->getDown() != nullptr && visitedNodes.count(currentNode->getDown()) == 0) {
                 nodesToVisit.push(currentNode->getDown());
+                visitedNodes.insert(currentNode->getDown());
+                parent_map[currentNode->getDown()] = currentNode;
             }
             if (currentNode->getLeft() != nullptr && visitedNodes.count(currentNode->getLeft()) == 0) {
                 nodesToVisit.push(currentNode->getLeft());
+                visitedNodes.insert(currentNode->getLeft());
+                parent_map[currentNode->getLeft()] = currentNode;
             }
             if (currentNode->getRight() != nullptr && visitedNodes.count(currentNode->getRight()) == 0) {
                 nodesToVisit.push(currentNode->getRight());
+                visitedNodes.insert(currentNode->getRight());
+                parent_map[currentNode->getRight()] = currentNode;
             }
             if (currentNode->getUpLeft() != nullptr && visitedNodes.count(currentNode->getUpLeft()) == 0) {
                 nodesToVisit.push(currentNode->getUpLeft());
+                visitedNodes.insert(currentNode->getUpLeft());
+                parent_map[currentNode->getUpLeft()] = currentNode;
             }
             if (currentNode->getUpRight() != nullptr && visitedNodes.count(currentNode->getUpRight()) == 0) {
                 nodesToVisit.push(currentNode->getUpRight());
+                visitedNodes.insert(currentNode->getUpRight());
+                parent_map[currentNode->getUpRight()] = currentNode;
             }
             if (currentNode->getDownLeft() != nullptr && visitedNodes.count(currentNode->getDownLeft()) == 0) {
                 nodesToVisit.push(currentNode->getDownLeft());
+                visitedNodes.insert(currentNode->getDownLeft());
+                parent_map[currentNode->getDownLeft()] = currentNode;
             }
             if (currentNode->getDownRight() != nullptr && visitedNodes.count(currentNode->getDownRight()) == 0) {
                 nodesToVisit.push(currentNode->getDownRight());
+                visitedNodes.insert(currentNode->getDownRight());
+                parent_map[currentNode->getDownRight()] = currentNode;
             }
 
-            /* Añade las coordenadas al vector. */
-            dfsPath.emplace_back(currentNode->getX(), currentNode->getY());
         }
         return false; /* Si no se encontró el nodo, retorna falso */
     }
 
     bool BFS() {
+
+        // Crear una cola y un conjunto de nodos visitados
         std::queue<Node *> nodesToVisit;
         std::unordered_set<Node *> visitedNodes;
+
+        // Inicializar la cola con el nodo de inicio
         nodesToVisit.push(initNode);
+        visitedNodes.insert(initNode);
+
+        // Crear un mapa para guardar el camino realizado
+        std::unordered_map<Node *, Node *> parent_map;
+        parent_map[initNode] = nullptr;
+
+        // Realizar la búsqueda BFS
         while (!nodesToVisit.empty()) {
             Node *currentNode = nodesToVisit.front();
             nodesToVisit.pop();
 
-            /* Si el nodo fue visitado continua con el siguiente. */
-            if (visitedNodes.count(currentNode) != 0) {
-                continue;
-            }
-
-            /* Si se encuentra el nodo, añade las coordenadas al vector. */
+            // Verificar si es el nodo objetivo
             if (currentNode == endNode) {
-                bfsPath.emplace_back(currentNode->getX(), currentNode->getY());
+                // Construir el camino a partir del mapa de padres
+                Node *node = endNode;
+                while (node != nullptr) {
+                    bfsPath.emplace_back(node->getX(), node->getY());
+                    node = parent_map[node];
+                }
+                reverse(bfsPath.begin(), bfsPath.end());
+
                 return true;
             }
-
-            /* Se agrega el nodo al conjunto de visitados. */
-            visitedNodes.insert(currentNode);
 
             /* Agregar los nodos que no han sido visitados. */
             if (currentNode->getUp() != nullptr && visitedNodes.count(currentNode->getUp()) == 0) {
                 nodesToVisit.push(currentNode->getUp());
+                visitedNodes.insert(currentNode->getUp());
+                parent_map[currentNode->getUp()] = currentNode;
             }
             if (currentNode->getDown() != nullptr && visitedNodes.count(currentNode->getDown()) == 0) {
                 nodesToVisit.push(currentNode->getDown());
+                visitedNodes.insert(currentNode->getDown());
+                parent_map[currentNode->getDown()] = currentNode;
             }
             if (currentNode->getLeft() != nullptr && visitedNodes.count(currentNode->getLeft()) == 0) {
                 nodesToVisit.push(currentNode->getLeft());
+                visitedNodes.insert(currentNode->getLeft());
+                parent_map[currentNode->getLeft()] = currentNode;
             }
             if (currentNode->getRight() != nullptr && visitedNodes.count(currentNode->getRight()) == 0) {
                 nodesToVisit.push(currentNode->getRight());
+                visitedNodes.insert(currentNode->getRight());
+                parent_map[currentNode->getRight()] = currentNode;
             }
             if (currentNode->getUpLeft() != nullptr && visitedNodes.count(currentNode->getUpLeft()) == 0) {
                 nodesToVisit.push(currentNode->getUpLeft());
+                visitedNodes.insert(currentNode->getUpLeft());
+                parent_map[currentNode->getUpLeft()] = currentNode;
             }
             if (currentNode->getUpRight() != nullptr && visitedNodes.count(currentNode->getUpRight()) == 0) {
                 nodesToVisit.push(currentNode->getUpRight());
+                visitedNodes.insert(currentNode->getUpRight());
+                parent_map[currentNode->getUpRight()] = currentNode;
             }
             if (currentNode->getDownLeft() != nullptr && visitedNodes.count(currentNode->getDownLeft()) == 0) {
                 nodesToVisit.push(currentNode->getDownLeft());
+                visitedNodes.insert(currentNode->getDownLeft());
+                parent_map[currentNode->getDownLeft()] = currentNode;
             }
             if (currentNode->getDownRight() != nullptr && visitedNodes.count(currentNode->getDownRight()) == 0) {
                 nodesToVisit.push(currentNode->getDownRight());
+                visitedNodes.insert(currentNode->getDownRight());
+                parent_map[currentNode->getDownRight()] = currentNode;
             }
-            bfsPath.emplace_back(currentNode->getX(),currentNode->getY());
         }
         return false;   /* Si no se encontró el nodo, retorna falso */
     }
@@ -503,7 +550,8 @@ void setFileNetDots(std::vector<std::vector<char>> map, Node *init, Node *end, b
     }
 }
 
-std::vector<std::vector<char>> setMap(std::vector<std::vector<Node>> net, const std::vector<std::pair<int, int>> &path, Node *init, Node *end) {
+std::vector<std::vector<char>>
+setMap(std::vector<std::vector<Node>> net, const std::vector<std::pair<int, int>> &path, Node *init, Node *end) {
     int rows = (int) net.size();
     int cols = (int) net[0].size();
     std::vector<std::vector<char>> map(rows, std::vector<char>(cols));
