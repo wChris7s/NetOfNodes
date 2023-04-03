@@ -1,86 +1,93 @@
 import pygame
-import math
 
-# Define some colors
-COLOR_INICIO = (184, 179, 216, 1)
-COLOR_FINAL = (255, 0, 0)
-COLOR_NULL = (0, 0, 0)
-COLOR_CAMINO = (64, 81, 114, 1)
-COLOR_PISO = (40, 48, 63, 1)
-COLOR_FONDO = (9, 10, 12, 1)
+pygame.init()
 
+PISO = (240, 241, 255, 1)
+CAMINO_EXPANSION = (217, 127, 134, 1)
+CAMINO_INICIO_FIN = (255, 188, 0, 1)
+INICIO = (255, 0, 210, 1)
+FIN = (14, 255, 0, 1)
+VACIO = (0, 0, 0, 1)
 
-with open('data.txt') as data:
-    temp = data.read().splitlines()
-    net = []
-    print("--------------------------")
-    print(temp[0])  # DFS
-    print(temp[1])  # INICIO
-    print(temp[2])  # FIN
-    print(temp[3])  # COLS
-    print(temp[4])  # ROWS
-    print("--------------------------")
-    """
-    for i in range(5, len(temp)):
-        for j in range(len(temp[5])):
-            print(temp[i][j] + " ", end="")
-        print()
-    """
-    for i in range(5, len(temp)):
-        net.append(temp[i])
+colors = {
+    "0": PISO,  # PISO
+    "+": CAMINO_INICIO_FIN,  # CAMINO_INICIO_FIN
+    "-": CAMINO_EXPANSION,  # CAMINO EXPANSION
+    "A": INICIO,  # INICIO
+    "B": FIN,  # FIN
+    " ": VACIO,  # VACIÓ
+}
 
-    rows = len(net)
-    cols = len(net[0])
+with open("data.txt", "r") as f:
+    all_lines = f.readlines()
+    data = [list(line.strip('\n')) for line in all_lines[5:]]
+    data1 = all_lines[:5]
+    for i in range(len(data1)):
+        data1[i] = data1[i].strip()
 
-    pygame.init()
+    DFS_BFS_TEXT = data1[0]
+    INICIO_TEXT = data1[1][8:]
+    FIN_TEXT = data1[2][5:]
+    ROWS_TEXT = data1[3][5:]
+    COLS_TEXT = data1[4][6:]
 
-    # Set the HEIGHT and WIDTH of the screen
-    WINDOW_SIZE = [640, 640]
+rows = len(data)
+cols = len(data[0])
 
-    # This sets the WIDTH and HEIGHT of each grid location
-    WIDTH = (WINDOW_SIZE[0] / math.sqrt(rows * cols))
-    HEIGHT = (WINDOW_SIZE[1] / math.sqrt(rows * cols))
-    print(WIDTH, HEIGHT)
+square_size = min(600 // rows, 600 // cols)
 
-    screen = pygame.display.set_mode(WINDOW_SIZE)
-    # Set title of screen
-    pygame.display.set_caption(temp[0])
-    # Loop until the user clicks the close button.
-    done = False
-    # Used to manage how fast the screen updates
-    clock = pygame.time.Clock()
+grid_width = square_size * cols
+grid_height = square_size * rows
 
-    # -------- Main Program Loop -----------
-    while not done:
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
+window_width = grid_width
+window_height = grid_height + 100
+window_size = (window_width, window_height)
 
-        # Set the screen background
-        screen.fill(COLOR_FONDO)
+window = pygame.display.set_mode(window_size)
+pygame.display.set_caption(DFS_BFS_TEXT)
 
-        # Draw the grid
-        color = 0
-        for row in range(rows):
-            for column in range(cols):
-                if net[row][column] == '0':
-                    color = COLOR_PISO
-                elif net[row][column] == ' ':
-                    color = COLOR_NULL
-                elif net[row][column] == '+':
-                    color = COLOR_CAMINO
-                elif net[row][column] == 'A':
-                    color = COLOR_INICIO
-                elif net[row][column] == 'B':
-                    color = COLOR_FINAL
-                rect = pygame.Rect(column * HEIGHT + 1, row * WIDTH + 1, WIDTH - 1, HEIGHT - 1)
-                pygame.draw.rect(screen, color, rect)
-        NET_NODES_IMG = "Result" + temp[0] + ".png"
-        pygame.image.save(screen, NET_NODES_IMG)
-        # Limit to 60 frames per second
-        clock.tick(60)
+clock = pygame.time.Clock()
 
-        # Go ahead and update the screen with what we've drawn.
-        pygame.display.flip()
+grid_rect = pygame.Rect(0, 0, grid_width, grid_height)
+pygame.draw.rect(window, VACIO, grid_rect)
 
-    pygame.quit()
+for row in range(rows):
+    for col in range(cols):
+        rect = pygame.Rect(col * square_size, row * square_size, square_size, square_size)
+        color = colors[data[row][col]]
+        pygame.draw.rect(window, color, rect)
+
+font = pygame.font.SysFont("Consolas", 30)
+dfs_text = font.render(DFS_BFS_TEXT + ROWS_TEXT + "x" + COLS_TEXT, True, CAMINO_EXPANSION)
+inicio_text = font.render("A:" + INICIO_TEXT, True, INICIO)
+fin_text = font.render("B:" + FIN_TEXT, True, FIN)
+
+dfs_rect = dfs_text.get_rect()
+dfs_rect.centerx = (grid_width // 4) - 50
+dfs_rect.centery = (grid_height + 50)
+
+inicio_rect = inicio_text.get_rect()
+inicio_rect.centerx = (grid_width // 2) - 10
+inicio_rect.centery = grid_height + 50
+
+fin_rect = fin_text.get_rect()
+fin_rect.centerx = 3 * (grid_width // 4) + 50
+fin_rect.centery = grid_height + 50
+
+window.blit(dfs_text, dfs_rect)
+window.blit(inicio_text, inicio_rect)
+window.blit(fin_text, fin_rect)
+
+pygame.display.flip()
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    pygame.display.flip()
+
+    clock.tick(60)
+
+pygame.quit()
